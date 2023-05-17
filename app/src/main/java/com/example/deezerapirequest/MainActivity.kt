@@ -1,5 +1,6 @@
 package com.example.deezerapirequest
 
+import android.content.Intent
 import android.graphics.drawable.ClipDrawable.HORIZONTAL
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-class MainActivity : AppCompatActivity() {
+import kotlin.math.log
+class MainActivity : AppCompatActivity(), GenreAdapter.OnItemClickListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var apiService: ApiService
 
@@ -29,16 +31,21 @@ class MainActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.categoryView)
         apiService = ServiceGenerator.buildService(ApiService::class.java)
 
-        // Set layout manager
-        val layoutManager = StaggeredGridLayoutManager(2, HORIZONTAL)
+        val layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         recyclerView.layoutManager = layoutManager
-val linear=findViewById<LinearLayout>(R.id.linearLayout)
-        // Create an empty adapter initially
+
         val adapter = GenreAdapter(emptyList())
+        adapter.setOnItemClickListener(this)
         recyclerView.adapter = adapter
 
-        // Make the API call
         getGenres()
+    }
+
+    override fun onItemClick(genre: Genre) {
+        val intent = Intent(this, CategoryActivity::class.java)
+        intent.putExtra("genreId", genre.id)
+        intent.putExtra("categoryName", genre.name)
+        startActivity(intent)
     }
 
     private fun getGenres() {
@@ -49,9 +56,8 @@ val linear=findViewById<LinearLayout>(R.id.linearLayout)
                     if (genreResponse != null) {
                         val genres = genreResponse.data
                         val adapter = GenreAdapter(genres)
+                        adapter.setOnItemClickListener(this@MainActivity)
                         recyclerView.adapter = adapter
-
-
                     } else {
                         // Handle null response
                     }
@@ -65,7 +71,6 @@ val linear=findViewById<LinearLayout>(R.id.linearLayout)
             }
         }
 
-        // Make the API call using enqueue
         apiService.getGenres().enqueue(callback)
     }
 }

@@ -10,7 +10,10 @@ interface ApiService {
     @GET("/genre")
      fun getGenres(): Call<GenreResponse>
 
-    @GET("/{id}/artist")
-    fun getArtists(@Path("id") id: Int): Call<ArtistResponse>
+    @GET("/genre/{genre_id}/artists")
+    fun getArtists(@Path("genre_id") id: Int): Call<ArtistResponse>
+
+    @GET("/artist/{artist_id}")
+    fun getAlbums(@Path("artist_id") id: Int): Call<AlbumsResponse>
 
 }

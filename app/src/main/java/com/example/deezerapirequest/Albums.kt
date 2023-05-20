@@ -1,56 +1,46 @@
 package com.example.deezerapirequest
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlinx.coroutines.launch
 
-
-class CategoryActivity : AppCompatActivity(),ArtistAdapter.OnItemClickListener {
-    private var genreId: Int = 0
-    private lateinit var recyclerViewa: RecyclerView
+class Albums : AppCompatActivity() {
+    private var artistId: Int = 0
+    private lateinit var artistPicture: String
+    private lateinit var recyclerView: RecyclerView
     private lateinit var apiService: ApiService
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_category)
-
-        recyclerViewa = findViewById(R.id.artistView)
+        setContentView(R.layout.activity_albums)
+        recyclerView = findViewById(R.id.albumsview)
         apiService = ServiceGenerator.buildService(ApiService::class.java)
-       genreId = intent.getIntExtra("genreId", 0)
-        val layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-        recyclerViewa.layoutManager = layoutManager
+        artistId = intent.getIntExtra("artistId", 0)
+        artistPicture= intent.getStringExtra("artistPicture").toString()
+        val layoutManager= LinearLayoutManager(this)
+        recyclerView.layoutManager = layoutManager
 
         val adapter = ArtistAdapter(emptyList())
-        recyclerViewa.adapter = adapter
-        adapter.setOnItemClickListener(this)
+        recyclerView.adapter = adapter
 
-        getArtists(genreId)
-
+        getAlbums(artistId)
     }
-    override fun onItemClick(artist:Artist) {
-        val intent = Intent(this, Albums::class.java)
-        intent.putExtra("Artist", artist.id)
-        intent.putExtra("ArtistPicture",artist.picture_big)
-        startActivity(intent)
-    }
-
-    private  fun getArtists(genreId:Int) {
-        val callback = object : Callback<ArtistResponse> {
-            override fun onResponse(call: Call<ArtistResponse>, response: Response<ArtistResponse>) {
+    private  fun getAlbums(artistId:Int) {
+        val callback = object : Callback<AlbumsResponse> {
+            override fun onResponse(call: Call<AlbumsResponse>, response: Response<AlbumsResponse>) {
                 if (response.isSuccessful) {
                     response.body()?.let {
                         Log.d("Service","bodyfull")
                         it.data?.let {
                             Log.d("Service","datafull")
-                            val adapter = ArtistAdapter(it)
-                            recyclerViewa.adapter = adapter
+                            val adapter = AlbumAdapter(it)
+                            recyclerView.adapter = adapter
 
                         }?: kotlin.run {
                             Log.d("Service","data empty")
@@ -71,11 +61,11 @@ class CategoryActivity : AppCompatActivity(),ArtistAdapter.OnItemClickListener {
                 }
             }
 
-            override fun onFailure(call: Call<ArtistResponse>, t: Throwable) {
+            override fun onFailure(call: Call<AlbumsResponse>, t: Throwable) {
                 // Handle failure
             }
         }
-        apiService.getArtists(genreId).enqueue(callback)
+        apiService.getAlbums(artistId).enqueue(callback)
 
 
     }

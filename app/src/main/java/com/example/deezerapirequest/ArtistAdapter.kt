@@ -9,19 +9,24 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
 class ArtistAdapter(private val artists: List<Artist>) : RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder>() {
-
-
+    private var onItemClickListener: ArtistAdapter.OnItemClickListener? = null
+    fun setOnItemClickListener(listener: ArtistAdapter.OnItemClickListener) {
+        onItemClickListener = listener
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.card_cell, parent, false)
         return ArtistViewHolder(view)
+
     }
 
     override fun onBindViewHolder(holder: ArtistViewHolder, position: Int) {
         val artist = artists[position]
         holder.bind(artist)
+        holder.itemView.setOnClickListener {
+            onItemClickListener?.onItemClick(artist)
+        }
 
     }
-
 
     override fun getItemCount(): Int = artists.size
 
@@ -38,5 +43,8 @@ class ArtistAdapter(private val artists: List<Artist>) : RecyclerView.Adapter<Ar
                     .into(artistImageView)
             }
         }
+    }
+    interface OnItemClickListener {
+        fun onItemClick(artist: Artist)
     }
 }
